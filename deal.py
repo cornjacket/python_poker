@@ -7,7 +7,7 @@ import random # this will be a useful library for shuffling
 
 mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC'] 
 
-def deal(numhands, n=5, deck=mydeck):
+def my_deal(numhands, n=5, deck=mydeck):
     # Your code here.
     random.seed()
     all_hands = []
@@ -33,6 +33,16 @@ def deal(numhands, n=5, deck=mydeck):
         #print "hands update"
         #print all_hands
     return all_hands
+
+def deal(numhands, n=5, deck=[r+s for r in '23456789TJQKA' for s in 'SHDC']):
+    "Shuffle the deck and deal out numhands n-card hands."
+    random.shuffle(deck) # mutates deck
+    # after shuffling deck, grab the next numhands*5 cards while separating
+    # them into numhands groups of n
+    # how the group separation work
+    return [deck[n*i:n*(i+1)] for i in range(numhands)]
+
+    
 
 for hand in deal(5):
     print hand

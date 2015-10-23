@@ -1,6 +1,22 @@
 import random
 
-def deal(numhands, n=5, deck=[r+s for r in '23456789TJQKA' for s in 'SHDC']
+
+
+def hand_percentages(n=1000): # 700*1000
+    "Sample n random hands and print a table of percentages for each type of hand."
+    hand_name = ["Straight Flush","4 Kind","Full House","Flush","Straight",
+                 "3 Kind","2 Pair","Pair","High Card"]
+
+    counts = [0] * 9
+    for i in range(n/10):
+        for hand in deal(10):
+            ranking = hand_rank(hand)[0]
+            counts[ranking] += 1
+    for i in reversed(range(9)):
+        print "%14s: %6.3f %%" % (hand_name[i], 100.*counts[i]/n)
+
+
+def deal(numhands, n=5, deck=[r+s for r in '23456789TJQKA' for s in 'SHDC']):
     "Shuffle the deck and deal out numhands n-card hands."
     random.shuffle(deck) # mutates deck
     # after shuffling deck, grab the next numhands*5 cards while separating
@@ -9,7 +25,7 @@ def deal(numhands, n=5, deck=[r+s for r in '23456789TJQKA' for s in 'SHDC']
     return [deck[n*i:n*(i+1)] for i in range(numhands)]
 
     
-def my_deal(numhands, n=5, deck=mydeck):
+def my_deal(numhands, n=5, deck=[r+s for r in '23456789TJQKA' for s in 'SHDC']):
     # Your code here.
     random.seed()
     all_hands = []
@@ -240,3 +256,4 @@ def test():
     return "tests pass"
 
 print test()
+hand_percentages()
