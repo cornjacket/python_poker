@@ -1,5 +1,8 @@
 import random
 
+import itertools
+
+
 
 
 def hand_percentages(n=1000): # 700*1000
@@ -108,6 +111,14 @@ def hand_rank(hand):
     else:                                          # high card
         return (0, ranks)
 
+
+
+def best_hand(hand = "JD TC TH 7C 7D 7S 7H".split()):
+    "From a 7-card hand, return the best 5 card hand."
+    #return max(itertools.combinations(hand,5), key=hand_rank) -- replace below with this
+    all_combos = itertools.combinations(hand, 5)
+    return max(list(all_combos), key=hand_rank)
+
 # Modify the card_ranks() function so that cards with
 # rank of ten, jack, queen, king, or ace (T, J, Q, K, A)
 # are handled correctly. Do this by mapping 'T' to 10, 
@@ -120,6 +131,100 @@ def hand_rank(hand):
     elif x == 'A': return 14
     else: return int(x)
 """
+
+allranks = '23456789TJQKA'
+redcards = [r+s for r in allranks for s in 'DH']
+blackcards = [r+s for r in allranks for s in 'DH']
+
+def best_wild_hand(hand):
+    "Try all values for jokers in all 5-card selections:"
+    hands = set(best_hand(h)
+                for h in itertools.product(*map(replacements, hand)))
+    return max(hands, key=hand_rank)
+
+def replacement(card):
+    """Return a list of the possible replacements for a card.
+    There will be more than 1 only for wild cards."""
+    if card =='?B': return blackcards
+    elif card == '?R': return redcards
+    else: return [card]
+
+def my_best_wild_hand(hand = "6C 7C 8C 9C 6D ?R ?B".split()): # ?B
+    "Try all values for jokers in all 5-card selections."
+    #find all 5 card combos of the 7 card hand just like in best_hand
+    all_fiveCardHands = []
+    all_combos = itertools.combinations(hand, 5)
+    #for idx, combo in enumerate(all_combos): #
+    for combo in all_combos:
+        #print idx, combo
+        fiveCardHand = list(combo)
+        # create a list of wildcards
+        cards_with_wildcards = filter(lambda x: '?' in x, fiveCardHand)
+        if len(cards_with_wildcards) == 0:
+            all_fiveCardHands.append(fiveCardHand)
+        elif len(cards_with_wildcards) <= 2: # and idx <= 5:
+            #print "Wildcard"
+            #print fiveCardHand # testing
+            all_fiveCardHands += convert_wild_card(fiveCardHand)
+            #print all_fiveCardHands
+        #else:
+        #    print "best_wild_hand: Error: too many wildcards"
+    #then for each of the 5 card combos
+    #for fiveCardHand in all_fiveCardHands:
+    #    print fiveCardHand
+    return max(all_fiveCardHands, key=hand_rank)
+    
+    # Your code here
+
+def convert_wild_card(fiveCardHand = "8C 9C TC ?R ?B".split()):
+    black_deck=[r+s for r in '23456789TJQKA' for s in 'SC']
+    red_deck=[r+s for r in '23456789TJQKA' for s in 'HD']
+    all_hands = []
+    cards_with_wildcards = filter(lambda x: '?' in x, fiveCardHand)
+    if len(cards_with_wildcards) == 1:
+        wildcard = cards_with_wildcards[0]
+        #print wildcard
+        #print "id = "+str(id(fiveCardHand))
+        index = fiveCardHand.index(wildcard)
+        #print "index = "+str(index)
+        # black or red
+        if 'B' in wildcard:
+            deck = black_deck
+        else:
+            deck = red_deck
+        for card in deck:
+            fiveCardHand[index] = card
+            #print "new card = %s fivCardHand = %s" % (card, fiveCardHand)
+            all_hands.append(list(fiveCardHand))
+            #print fiveCardHand
+        #print all_hands
+    elif len(cards_with_wildcards) == 2:
+        first_wildcard = cards_with_wildcards[0]
+        second_wildcard = cards_with_wildcards[1]
+        first_index = fiveCardHand.index(first_wildcard)
+        second_index = fiveCardHand.index(second_wildcard)
+        if 'B' in first_wildcard:
+            first_deck = black_deck
+            second_deck = red_deck
+        else:
+            first_deck = red_deck
+            second_deck = black_deck
+        #print "Two wild cards"
+        #print "first wild card = %s second wild card = %s" % (first_wildcard, second_wildcard)
+        #print "first index = %s second index = %s" % (first_index, second_index)        
+        for first_card in first_deck:
+            fiveCardHand[first_index] = first_card
+            for second_card in second_deck:
+                fiveCardHand[second_index] = second_card
+                all_hands.append(list(fiveCardHand))
+                #print fiveCardHand
+        # do something
+    else:
+        print "convert_wild_card: ERROR"
+    # remember to return something
+    return all_hands
+
+
 
 # Define two functions, straight(ranks) and flush(hand).
 # Keep in mind that ranks will be ordered from largest
@@ -255,5 +360,6 @@ def test():
 
     return "tests pass"
 
-print test()
-hand_percentages()
+#print test()
+#hand_percentages()
+print best_hand()
